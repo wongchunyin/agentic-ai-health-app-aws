@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="LiveWell.Pages.EditProfilePage"
+             Title="EditProfilePage">
+    <Grid>
+        <ActivityIndicator x:Name="LoadingIndicator" Color="White"
+                           Background="Black" Opacity="0.5" ZIndex="100"
+                           IsRunning="True" IsVisible="False"/>
+
+        <ScrollView Padding="30">
+            <VerticalStackLayout Spacing="15">
+
+                <Label Text="Profile" FontSize="16" TextColor="Black" FontAttributes="Bold" VerticalOptions="Center"/>
+
+                <Label Text="Email address:" FontSize="16" TextColor="Black"/>
+                <Border Style="{StaticResource EntryBorder}">
+                    <Entry x:Name="EntryEmail" Style="{StaticResource EntryWithBorder}"/>
+                </Border>
+
+                <Label Text="Full name:" FontSize="16" TextColor="Black"/>
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition/>
+                        <ColumnDefinition/>
+                        <ColumnDefinition/>
+                    </Grid.ColumnDefinitions>
+                    <Border Grid.Column="0" Style="{StaticResource EntryBorder}" Margin="5,0">
+                        <Entry x:Name="EntryFirstName" Placeholder="First Name" Style="{StaticResource EntryWithBorder}"/>
+                    </Border>
+                    <Border Grid.Column="1" Style="{StaticResource EntryBorder}" Margin="5,0">
+                        <Entry x:Name="EntryMiddleName" Placeholder="Middle Name" Style="{StaticResource EntryWithBorder}"/>
+                    </Border>
+                    <Border Grid.Column="2" Style="{StaticResource EntryBorder}" Margin="5,0">
+                        <Entry x:Name="EntryLastName" Placeholder="Last Name" Style="{StaticResource EntryWithBorder}"/>
+                    </Border>
+                </Grid>
+
+                <Label Text="Preferred name:" FontSize="16" TextColor="Black"/>
+                <Border Style="{StaticResource EntryBorder}">
+                    <Entry x:Name="EntryPreferredName" Style="{StaticResource EntryWithBorder}"/>
+                </Border>
+
+                <Label Text="Date of birth:" FontSize="16" TextColor="Black"/>
+                <Border Style="{StaticResource EntryBorder}">
+                    <Entry x:Name="EntryDOB" Placeholder="YYYY-MM-DD" Style="{StaticResource EntryWithBorder}"/>
+                </Border>
+
+                <Label Text="Gender:" FontSize="16" TextColor="Black"/>
+                <Border Style="{StaticResource EntryBorder}">
+                    <Picker x:Name="PickerGender" Title="Select Gender">
+                        <Picker.Items>
+                            <x:String>male</x:String>
+                            <x:String>female</x:String>
+                            <x:String>other</x:String>
+                            <x:String>prefernot_to_say</x:String>
+                        </Picker.Items>
+                    </Picker>
+                </Border>
+
+                <Label Text="Address:" FontSize="16" TextColor="Black"/>
+                <Border Style="{StaticResource EntryBorder}">
+                    <Entry x:Name="EntryStreet" Placeholder="Street" Style="{StaticResource EntryWithBorder}"/>
+                </Border>
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition/>
+                        <ColumnDefinition/>
+                    </Grid.ColumnDefinitions>
+                    <Border Grid.Column="0" Style="{StaticResource EntryBorder}" Margin="5,0">
+                        <Entry x:Name="EntryCity" Placeholder="City" Style="{StaticResource EntryWithBorder}"/>
+                    </Border>
+                    <Border Grid.Column="1" Style="{StaticResource EntryBorder}" Margin="5,0">
+                        <Entry x:Name="EntryCountry" Placeholder="Country" Style="{StaticResource EntryWithBorder}"/>
+                    </Border>
+                </Grid>
+
+                <Button x:Name="BtnSave" Text="Save" HorizontalOptions="End" Clicked="BtnSave_Clicked"/>
+
+            </VerticalStackLayout>
+        </ScrollView>
+    </Grid>
+</ContentPage>

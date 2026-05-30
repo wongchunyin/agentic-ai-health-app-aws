@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<Shell
+    x:Class="LiveWell.AppShell"
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:local="clr-namespace:LiveWell"
+    xmlns:pages="clr-namespace:LiveWell.Pages"
+    Title="LiveWell"
+    TabBarBackgroundColor="{StaticResource Primary}"
+    TabBarTitleColor="White"
+    TabBarUnselectedColor="{StaticResource Secondary}"
+    TabBarForegroundColor="White">
+
+    <TabBar>
+        <Tab Title="Home" Icon="home_icon.png">
+            <ShellContent
+                ContentTemplate="{DataTemplate local:MainPage}"
+                Route="MainPage" />
+        </Tab>
+        <Tab Title="AI Agent" Icon="chatbot_icon.png">
+            <ShellContent
+                ContentTemplate="{DataTemplate pages:ChatPage}"
+                Route="ChatPage" />
+        </Tab>
+        <Tab Title="Frailty" Icon="frailty_icon.png">
+            <ShellContent
+                ContentTemplate="{DataTemplate pages:FrailtyPage}"
+                Route="FrailtyPage" />
+        </Tab>
+    </TabBar>
+
+</Shell>

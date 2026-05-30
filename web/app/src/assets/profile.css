@@ -1,0 +1,13 @@
+@import './global.css';
+
+label {
+    margin-left: 15px;
+}
+
+.edit-input {
+    margin: 5px;
+}
+
+.label {
+    margin: 10px 0;
+}

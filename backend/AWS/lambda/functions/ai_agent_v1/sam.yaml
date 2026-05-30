@@ -1,0 +1,175 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+
+Parameters:
+  ToolkitLayerVersion:
+    Type: Number
+    Description: Version of the Toolkit Layer to use
+    Default: 29
+  GeminiLayerVersion:
+    Type: Number
+    Description: Gemini Layer Version
+    Default: 37
+  AWSLayerVersion:
+    Type: Number
+    Description: AWS Layer Version (includes DynamoDB, S3, Cognito helpers)
+    Default: 37
+  MessageLayerVersion:
+    Type: Number
+    Description: Message Layer Version
+    Default: 10
+  CognitoUserPoolId:
+    Type: String
+    Description: Cognito User Pool ID
+    Default: "us-east-1_tjhTbNShM"
+  ExistingApiId:
+    Type: String
+    Description: Existing REST API ID
+    Default: 7xhw2qub6l
+  ExistingApiRootResourceId:
+    Type: String
+    Description: Root Resource ID of existing API
+    Default: mvl7kjxoi2
+
+Globals:
+  Function:
+    Timeout: 60
+    Runtime: python3.9
+
+Resources:
+  # API Gateway Resources
+  AiResource:
+    Type: AWS::ApiGateway::Resource
+    Properties:
+      RestApiId: !Ref ExistingApiId
+      ParentId: !Ref ExistingApiRootResourceId
+      PathPart: ai
+
+  ChatResource:
+    Type: AWS::ApiGateway::Resource
+    Properties:
+      RestApiId: !Ref ExistingApiId
+      ParentId: !Ref AiResource
+      PathPart: chat
+
+  AiChatMethod:
+    Type: AWS::ApiGateway::Method
+    Properties:
+      RestApiId: !Ref ExistingApiId
+      ResourceId: !Ref ChatResource
+      HttpMethod: POST
+      AuthorizationType: COGNITO_USER_POOLS
+      AuthorizerId: c6djkx
+      Integration:
+        Type: AWS_PROXY
+        IntegrationHttpMethod: POST
+        Uri: !Sub arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${AiAgentFunction.Arn}/invocations
+
+  AiChatOptionsMethod:
+    Type: AWS::ApiGateway::Method
+    Properties:
+      RestApiId: !Ref ExistingApiId
+      ResourceId: !Ref ChatResource
+      HttpMethod: OPTIONS
+      AuthorizationType: NONE
+      Integration:
+        Type: MOCK
+        IntegrationResponses:
+          - StatusCode: 200
+            ResponseParameters:
+              method.response.header.Access-Control-Allow-Headers: "'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token'"
+              method.response.header.Access-Control-Allow-Methods: "'POST,OPTIONS'"
+              method.response.header.Access-Control-Allow-Origin: "'*'"
+        RequestTemplates:
+          application/json: '{"statusCode": 200}'
+      MethodResponses:
+        - StatusCode: 200
+          ResponseParameters:
+            method.response.header.Access-Control-Allow-Headers: true
+            method.response.header.Access-Control-Allow-Methods: true
+            method.response.header.Access-Control-Allow-Origin: true
+
+  # AI Agent Lambda Function
+  AiAgentFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: ai-agent
+      Runtime: python3.9
+      Handler: function.lambda_handler
+      CodeUri: .
+      MemorySize: 512
+      Timeout: 60
+      Layers:
+        - !Sub "arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:layer:toolkit-layer:${ToolkitLayerVersion}"
+        - !Sub "arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:layer:gemini-layer:${GeminiLayerVersion}"
+        - !Sub "arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:layer:aws-layer:${AWSLayerVersion}"
+        - !Sub "arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:layer:message-layer:${MessageLayerVersion}"
+      Environment:
+        Variables:
+          DYNAMODB_TABLE_NAME: livewell
+          S3_CHAT_HISTORY_BUCKET: livewell-chathistory
+          COGNITO_USER_POOL_ID: !Ref CognitoUserPoolId
+          COGNITO_REGION: !Ref AWS::Region
+      Policies:
+        - AWSLambdaBasicExecutionRole
+        - DynamoDBCrudPolicy:
+            TableName: livewell
+        - S3CrudPolicy:
+            BucketName: livewell-chathistory
+        - Version: '2012-10-17'
+          Statement:
+            - Effect: Allow
+              Action:
+                - lambda:InvokeFunction
+              Resource: !Sub 'arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:function:*'
+            - Effect: Allow
+              Action:
+                - transcribe:StartTranscriptionJob
+                - transcribe:GetTranscriptionJob
+              Resource: '*'
+
+
+
+
+  # Gateway Responses for CORS
+  UnauthorizedGatewayResponse:
+    Type: AWS::ApiGateway::GatewayResponse
+    Properties:
+      RestApiId: !Ref ExistingApiId
+      ResponseType: UNAUTHORIZED
+      ResponseParameters:
+        gatewayresponse.header.Access-Control-Allow-Origin: "'*'"
+        gatewayresponse.header.Access-Control-Allow-Headers: "'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token'"
+        gatewayresponse.header.Access-Control-Allow-Methods: "'POST,OPTIONS'"
+
+  DefaultGatewayResponse:
+    Type: AWS::ApiGateway::GatewayResponse
+    Properties:
+      RestApiId: !Ref ExistingApiId
+      ResponseType: DEFAULT_4XX
+      ResponseParameters:
+        gatewayresponse.header.Access-Control-Allow-Origin: "'*'"
+        gatewayresponse.header.Access-Control-Allow-Headers: "'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token'"
+        gatewayresponse.header.Access-Control-Allow-Methods: "'POST,OPTIONS'"
+
+  AiAgentPermission:
+    Type: AWS::Lambda::Permission
+    Properties:
+      FunctionName: !Ref AiAgentFunction
+      Action: lambda:InvokeFunction
+      Principal: apigateway.amazonaws.com
+      SourceArn: !Sub arn:aws:execute-api:${AWS::Region}:${AWS::AccountId}:${ExistingApiId}/*/*
+
+Outputs:
+  AiAgentApiUrl:
+    Description: "AI Agent API Gateway endpoint URL"
+    Value: !Sub "https://${ExistingApiId}.execute-api.${AWS::Region}.amazonaws.com/Prod/ai/chat"
+  LambdaFunctionArn:
+    Description: Lambda Function ARN for manual API Gateway integration
+    Value: !GetAtt AiAgentFunction.Arn
+  ConversationsTableName:
+    Description: "Conversations DynamoDB Table Name"
+    Value: livewell
+  ChatHistoryBucketName:
+    Description: "Chat History S3 Bucket Name"
+    Value: livewell-chathistory

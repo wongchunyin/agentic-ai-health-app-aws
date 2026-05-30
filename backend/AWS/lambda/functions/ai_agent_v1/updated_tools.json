@@ -1,0 +1,140 @@
+{
+  "tools": [
+    {
+      "name": "speech_to_text",
+      "description": "Convert speech audio to text using Amazon Transcribe. Accepts base64 encoded audio files in supported formats (wav, mp3, mp4, flac, ogg, amr, webm).",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "user_id": {
+            "type": "string",
+            "description": "The user ID for organizing transcription files"
+          },
+          "session_id": {
+            "type": "string", 
+            "description": "The session ID for organizing transcription files"
+          },
+          "audio_file": {
+            "type": "string",
+            "description": "Base64 encoded audio file data"
+          },
+          "filename": {
+            "type": "string",
+            "description": "Original filename with extension to determine format"
+          },
+          "file_format": {
+            "type": "string",
+            "description": "Audio file format (optional if filename has extension)"
+          }
+        },
+        "required": ["user_id", "session_id", "audio_file", "filename"]
+      }
+    },
+    {
+      "name": "generate_aactt_plan",
+      "description": "Generate a structured AACTT (Action, Actor, Context, Target, Time) plan for older adults focusing on health and wellness activities.",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "action_type": {
+            "type": "string",
+            "description": "Type of activities to include in the plan. Currently supports 'physical'",
+            "enum": ["physical"]
+          }
+        },
+        "required": ["action_type"]
+      }
+    },
+    {
+      "name": "create_session",
+      "description": "Create a new chat session for a user with Gemini AI assistant.",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "user_id": {
+            "type": "string",
+            "description": "The user ID to create session for"
+          },
+          "api_key": {
+            "type": "string",
+            "description": "Gemini API key (optional if set in environment)"
+          }
+        },
+        "required": ["user_id"]
+      }
+    },
+    {
+      "name": "get_weather_forecast",
+      "description": "Get weather forecast data for a specified location.",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "location": {
+            "type": "string",
+            "description": "Location name for weather forecast (defaults to 'Australia')"
+          }
+        }
+      }
+    },
+    {
+      "name": "check_outdoor_weather",
+      "description": "Check if weather conditions are suitable for outdoor activities at a specific location and time.",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "location": {
+            "type": "string",
+            "description": "Location name to check weather for"
+          },
+          "year": {
+            "type": "integer",
+            "description": "Year (defaults to current year)"
+          },
+          "month": {
+            "type": "integer",
+            "description": "Month (1-12)"
+          },
+          "day": {
+            "type": "integer",
+            "description": "Day of month"
+          },
+          "hour": {
+            "type": "integer",
+            "description": "Hour of day (0-23)"
+          },
+          "duration": {
+            "type": "integer",
+            "description": "Duration in hours (defaults to 1)"
+          }
+        },
+        "required": ["location", "month", "day", "hour"]
+      }
+    },
+    {
+      "name": "chat_with_gemini",
+      "description": "Send a simple chat message to Gemini AI and get a response.",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "api_key": {
+            "type": "string",
+            "description": "Gemini API key"
+          },
+          "user_id": {
+            "type": "string",
+            "description": "User ID for the chat"
+          },
+          "session_id": {
+            "type": "string",
+            "description": "Session ID (optional)"
+          },
+          "prompt": {
+            "type": "string",
+            "description": "Message to send to Gemini"
+          }
+        },
+        "required": ["api_key", "user_id", "prompt"]
+      }
+    }
+  ]
+}

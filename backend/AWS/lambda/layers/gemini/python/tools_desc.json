@@ -1,0 +1,87 @@
+{
+  "tools": [
+    {
+      "name": "get_current_time",
+      "description": "Get the current time",
+      "parameters": {
+      "type": "object"
+      }
+    },
+    {
+      "name": "generate_aactt_plan",
+      "description": "REQUIRED for ALL plan generation requests. Generate personalized health and wellness plans, exercise routines, activity schedules, fitness programs, or any structured health recommendations for older adults. Use this tool whenever users ask for: plans, routines, schedules, programs, recommendations, activities, exercises, or health guidance. Returns structured AACTT format with specific actions, context, targets, and timing.",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "action_type": {
+            "type": "string",
+            "description": "Type of activities to include in the plan. Currently supports 'physical'",
+            "enum": ["physical"]
+          }
+        },
+        "required": ["action_type"]
+      }
+    },
+    {
+      "name": "get_weather_forecast",
+      "description": "Get weather forecast data for a specified location. Returns hourly weather data including time, temperature_2m (°C), precipitation (mm), rain (mm), and weather_code (human-readable descriptions like 'Clear sky', 'Partly cloudy', etc.).",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "location": {
+            "type": "string",
+            "description": "Location name for weather forecast (defaults to 'Australia')"
+          }
+        }
+      }
+    },
+    {
+      "name": "check_outdoor_weather",
+      "description": "Check if weather conditions are suitable for outdoor activities at a specific location and time.",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "location": {
+            "type": "string",
+            "description": "Location name to check weather for"
+          },
+          "year": {
+            "type": "integer",
+            "description": "Year (defaults to current year)"
+          },
+          "month": {
+            "type": "integer",
+            "description": "Month (1-12)"
+          },
+          "day": {
+            "type": "integer",
+            "description": "Day of month"
+          },
+          "hour": {
+            "type": "integer",
+            "description": "Hour of day (0-23)"
+          },
+          "duration": {
+            "type": "integer",
+            "description": "Duration in hours (defaults to 1)"
+          }
+        },
+        "required": ["location", "month", "day", "hour"]
+      }
+    },
+    {
+      "name": "web_search",
+      "description": "Search the web for current information, news, articles, and general knowledge. Returns structured results with: query (search term), results (array of objects with Source URL, title, and content text), and total_results count. Each result contains the full text content extracted from web pages. Best for: recent news, health articles, research studies, general information, and current events. Note: For finding specific local businesses (like gyms, restaurants), structured business directories would be more efficient.",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "query": {
+            "type": "string",
+            "description": "The search query to send to Google"
+          }
+        },
+        "required": ["query"]
+      }
+    }
+  ]
+}

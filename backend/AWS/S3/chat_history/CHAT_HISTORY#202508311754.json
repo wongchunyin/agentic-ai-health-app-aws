@@ -1,0 +1,22 @@
+{
+  "metadata": {
+    "session_id": "SESSION#202508311754",
+    "user_id": "USER#000000001",
+    "start_time": "2024-05-27T12:30:45Z",
+    "end_time": "2024-05-27T12:35:22Z",
+    "llm_model": "gemini-1.5-flash",
+    "lambda_function_version": "$LATEST"
+  },
+  "history": [
+    {
+      "timestamp": "2024-05-27T12:30:45Z",
+      "role": "user",
+      "content": "You are a helpful health and wellness assistant for older people. Start with a warm greeting."
+    },
+    {
+      "timestamp": "2024-05-27T12:30:50Z",
+      "role": "model",
+      "content": "G'days, I am your personal health assistant. How can I help you."
+    }
+  ]
+}

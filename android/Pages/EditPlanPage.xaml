@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="LiveWell.Pages.EditPlanPage"
+             Title="Edit Plan">
+    <Grid>
+        <ActivityIndicator x:Name="LoadingIndicator" Color="White"
+                           Background="Black" Opacity="0.5" ZIndex="100"
+                           IsRunning="True" IsVisible="False"/>
+
+        <ScrollView Padding="30">
+            <VerticalStackLayout Spacing="15">
+                <HorizontalStackLayout x:Name="StatusLayout" Spacing="10" IsVisible="False">
+                    <Label Text="Status:" FontSize="16" TextColor="Black" FontAttributes="Bold" VerticalOptions="Center"/>
+                    <Switch x:Name="StatusSwitch" VerticalOptions="Center"/>
+                    <Label x:Name="StatusLabel" Text="Inactive" FontSize="16" FontAttributes="Italic" TextColor="Black" VerticalOptions="Center"/>
+                </HorizontalStackLayout>
+
+                <Label Text="Action" FontSize="16" TextColor="Black" FontAttributes="Bold" VerticalOptions="Center"/>
+                <Label Text="Give this plan a name to show on the Home page." FontSize="16" TextColor="Black"/>
+                <Entry x:Name="EntryName" FontSize="16" TextColor="Black"/>
+                <Label Text="Provide some description about this plan. What action do you take?" FontSize="16" TextColor="Black"/>
+                <Editor x:Name="EditorDescription" FontSize="16" TextColor="Black"/>
+
+                <Label Text="Context" FontSize="16" TextColor="Black" FontAttributes="Bold" VerticalOptions="Center"/>
+                <Label Text="Where does this plan take place?" FontSize="16" TextColor="Black"/>
+                <Entry x:Name="EntryLocation" FontSize="16" TextColor="Black"/>
+                <Label Text="Provide conditions required to conduct this plan if available." FontSize="16" TextColor="Black"/>
+                <Entry x:Name="EntryCondition" FontSize="16" TextColor="Black"/>
+
+                <Label Text="Target" FontSize="16" TextColor="Black" FontAttributes="Bold" VerticalOptions="Center"/>
+                <Label Text="What benefits do you get when completing this plan?" FontSize="16" TextColor="Black"/>
+                <Entry x:Name="EntryTarget" FontSize="16" TextColor="Black"/>
+
+                <Label Text="Time" FontSize="16" TextColor="Black" FontAttributes="Bold" VerticalOptions="Center"/>
+                <Label Text="How frequent do you want to do this plan?" FontSize="16" TextColor="Black"/>
+                <HorizontalStackLayout Spacing="10">
+                    <Entry x:Name="EntryFrequencyValue" Placeholder="Value" FontSize="16" TextColor="Black" Keyboard="Numeric"/>
+                    <Entry x:Name="EntryFrequencyUnit" Placeholder="Unit" FontSize="16" TextColor="Black"/>
+                </HorizontalStackLayout>
+                <Label Text="How long does it take each time you do this plan?" FontSize="16" TextColor="Black"/>
+                <HorizontalStackLayout Spacing="10">
+                    <Entry x:Name="EntryDurationValue" Placeholder="Value" FontSize="16" TextColor="Black" Keyboard="Numeric"/>
+                    <Entry x:Name="EntryDurationUnit" Placeholder="Unit" FontSize="16" TextColor="Black"/>
+                </HorizontalStackLayout>
+
+                <HorizontalStackLayout HorizontalOptions="Center" Spacing="80">
+                    <Button x:Name="BtnDelete" Text="Delete" Clicked="BtnDelete_Clicked" Background="DarkRed" IsVisible="False"/>
+                    <Button x:Name="BtnSave" Text="Save" Clicked="BtnSave_Clicked"/>
+                </HorizontalStackLayout>
+
+            </VerticalStackLayout>
+        </ScrollView>
+    </Grid>
+</ContentPage>

@@ -1,0 +1,218 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Description: Profile management Lambda functions
+
+Parameters:
+  ExistingApiId:
+    Type: String
+    Description: Existing REST API ID
+    Default: "7xhw2qub6l"
+  ExistingApiRootResourceId:
+    Type: String
+    Description: Root Resource ID of existing API
+    Default: "mvl7kjxoi2"
+  MessageLayerVersion:
+    Type: Number
+    Description: Message Layer Version
+    Default: 10
+  LivewellCoreLayerVersion:
+    Type: Number
+    Description: Livewell Core Layer Version
+    Default: 120
+  AWSLayerVersion:
+    Type: Number
+    Description: AWS Layer Version
+    Default: 41
+
+Globals:
+  Function:
+    Runtime: python3.11
+    Timeout: 30
+    MemorySize: 512
+
+Resources:
+  # API Gateway Resources
+  ProfileResource:
+    Type: AWS::ApiGateway::Resource
+    Properties:
+      RestApiId: "7xhw2qub6l"
+      ParentId: "mvl7kjxoi2"
+      PathPart: profile
+
+  # GET method for profile
+  GetProfileMethod:
+    Type: AWS::ApiGateway::Method
+    Properties:
+      RestApiId: "7xhw2qub6l"
+      ResourceId: !Ref ProfileResource
+      HttpMethod: GET
+      AuthorizationType: COGNITO_USER_POOLS
+      AuthorizerId: c6djkx
+      Integration:
+        Type: AWS_PROXY
+        IntegrationHttpMethod: POST
+        Uri: !Sub arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${GetProfileFunction.Arn}/invocations
+
+  # POST method for profile
+  CreateProfileMethod:
+    Type: AWS::ApiGateway::Method
+    Properties:
+      RestApiId: "7xhw2qub6l"
+      ResourceId: !Ref ProfileResource
+      HttpMethod: POST
+      AuthorizationType: COGNITO_USER_POOLS
+      AuthorizerId: c6djkx
+      Integration:
+        Type: AWS_PROXY
+        IntegrationHttpMethod: POST
+        Uri: !Sub arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${SaveProfileFunction.Arn}/invocations
+
+  # PUT method for profile
+  UpdateProfileMethod:
+    Type: AWS::ApiGateway::Method
+    Properties:
+      RestApiId: "7xhw2qub6l"
+      ResourceId: !Ref ProfileResource
+      HttpMethod: PUT
+      AuthorizationType: COGNITO_USER_POOLS
+      AuthorizerId: c6djkx
+      Integration:
+        Type: AWS_PROXY
+        IntegrationHttpMethod: POST
+        Uri: !Sub arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${SaveProfileFunction.Arn}/invocations
+
+  # PATCH method for profile updates
+  PatchProfileMethod:
+    Type: AWS::ApiGateway::Method
+    Properties:
+      RestApiId: "7xhw2qub6l"
+      ResourceId: !Ref ProfileResource
+      HttpMethod: PATCH
+      AuthorizationType: COGNITO_USER_POOLS
+      AuthorizerId: c6djkx
+      Integration:
+        Type: AWS_PROXY
+        IntegrationHttpMethod: POST
+        Uri: !Sub arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${UpdateProfileFunction.Arn}/invocations
+
+  # OPTIONS method for CORS
+  ProfileOptionsMethod:
+    Type: AWS::ApiGateway::Method
+    Properties:
+      RestApiId: "7xhw2qub6l"
+      ResourceId: !Ref ProfileResource
+      HttpMethod: OPTIONS
+      AuthorizationType: NONE
+      Integration:
+        Type: MOCK
+        IntegrationResponses:
+          - StatusCode: 200
+            ResponseParameters:
+              method.response.header.Access-Control-Allow-Headers: "'Content-Type,Authorization,X-Amz-Date,X-Api-Key,X-Amz-Security-Token'"
+              method.response.header.Access-Control-Allow-Methods: "'GET,POST,PUT,PATCH,OPTIONS'"
+              method.response.header.Access-Control-Allow-Origin: "'*'"
+            ResponseTemplates:
+              application/json: ''
+        RequestTemplates:
+          application/json: '{"statusCode": 200}'
+        PassthroughBehavior: WHEN_NO_MATCH
+      MethodResponses:
+        - StatusCode: 200
+          ResponseParameters:
+            method.response.header.Access-Control-Allow-Headers: true
+            method.response.header.Access-Control-Allow-Methods: true
+            method.response.header.Access-Control-Allow-Origin: true
+  GetProfileFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: get-profile
+      CodeUri: get-profile/
+      Handler: function.lambda_handler
+      Layers:
+        - !Sub "arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:layer:message-layer:${MessageLayerVersion}"
+        - !Sub "arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:layer:livewell-core-layer:${LivewellCoreLayerVersion}"
+        - !Sub "arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:layer:aws-layer:${AWSLayerVersion}"
+      Policies:
+        - DynamoDBReadPolicy:
+            TableName: livewell
+        - S3ReadPolicy:
+            BucketName: livewell-profiles
+
+
+  SaveProfileFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: save-profile
+      CodeUri: save-profile/
+      Handler: function.lambda_handler
+      Layers:
+        - !Sub "arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:layer:message-layer:${MessageLayerVersion}"
+        - !Sub "arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:layer:livewell-core-layer:${LivewellCoreLayerVersion}"
+        - !Sub "arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:layer:aws-layer:${AWSLayerVersion}"
+      Policies:
+        - DynamoDBCrudPolicy:
+            TableName: livewell
+        - S3CrudPolicy:
+            BucketName: livewell-profiles
+
+  UpdateProfileFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: update-profile
+      CodeUri: update-profile/
+      Handler: function.lambda_handler
+      Layers:
+        - !Sub "arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:layer:message-layer:${MessageLayerVersion}"
+        - !Sub "arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:layer:livewell-core-layer:${LivewellCoreLayerVersion}"
+        - !Sub "arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:layer:aws-layer:${AWSLayerVersion}"
+      Policies:
+        - DynamoDBCrudPolicy:
+            TableName: livewell
+        - S3CrudPolicy:
+            BucketName: livewell-profiles
+
+  # Lambda Permissions
+  GetProfilePermission:
+    Type: AWS::Lambda::Permission
+    Properties:
+      FunctionName: !Ref GetProfileFunction
+      Action: lambda:InvokeFunction
+      Principal: apigateway.amazonaws.com
+      SourceArn: !Sub "arn:aws:execute-api:${AWS::Region}:${AWS::AccountId}:7xhw2qub6l/*/*"
+
+  SaveProfilePermission:
+    Type: AWS::Lambda::Permission
+    Properties:
+      FunctionName: !Ref SaveProfileFunction
+      Action: lambda:InvokeFunction
+      Principal: apigateway.amazonaws.com
+      SourceArn: !Sub "arn:aws:execute-api:${AWS::Region}:${AWS::AccountId}:7xhw2qub6l/*/*"
+
+  UpdateProfilePermission:
+    Type: AWS::Lambda::Permission
+    Properties:
+      FunctionName: !Ref UpdateProfileFunction
+      Action: lambda:InvokeFunction
+      Principal: apigateway.amazonaws.com
+      SourceArn: !Sub "arn:aws:execute-api:${AWS::Region}:${AWS::AccountId}:7xhw2qub6l/*/*"
+
+  # Gateway Responses for CORS
+  GatewayResponse4XX:
+    Type: AWS::ApiGateway::GatewayResponse
+    Properties:
+      RestApiId: "7xhw2qub6l"
+      ResponseType: DEFAULT_4XX
+      ResponseParameters:
+        gatewayresponse.header.Access-Control-Allow-Origin: "'*'"
+        gatewayresponse.header.Access-Control-Allow-Headers: "'Content-Type,Authorization,X-Amz-Date,X-Api-Key,X-Amz-Security-Token'"
+        gatewayresponse.header.Access-Control-Allow-Methods: "'GET,POST,PUT,PATCH,OPTIONS'"
+
+  GatewayResponse5XX:
+    Type: AWS::ApiGateway::GatewayResponse
+    Properties:
+      RestApiId: "7xhw2qub6l"
+      ResponseType: DEFAULT_5XX
+      ResponseParameters:
+        gatewayresponse.header.Access-Control-Allow-Origin: "'*'"
+        gatewayresponse.header.Access-Control-Allow-Headers: "'Content-Type,Authorization,X-Amz-Date,X-Api-Key,X-Amz-Security-Token'"
+        gatewayresponse.header.Access-Control-Allow-Methods: "'GET,POST,PUT,PATCH,OPTIONS'"

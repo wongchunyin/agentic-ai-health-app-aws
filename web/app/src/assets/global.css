@@ -1,0 +1,12 @@
+:root {
+    --background-color: #fff;
+    --font-size-base: 18px;
+    --font-style-base: Roboto, sans-serif;
+    --primary-color: #295;
+    --primary-color-hover: #074;
+    --secondary-color: #6af;
+    --text-color: #333;
+
+    --md-sys-color-primary: var(--primary-color);
+    --md-sys-color-on-surface: var(--text-color);
+}

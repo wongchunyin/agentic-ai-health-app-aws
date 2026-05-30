@@ -1,0 +1,52 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+
+Globals:
+  Api:
+    Cors:
+      AllowMethods: "'GET,POST,PUT,DELETE,OPTIONS'"
+      AllowHeaders: "'Content-Type,Authorization,X-Requested-With,Accept,Origin,User-Agent,Cache-Control,Pragma'"
+      AllowOrigin: "'*'"
+      MaxAge: 86400
+
+Resources:
+  PreferenceExtractionFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: preference-extraction-handler
+      Runtime: python3.9
+      Handler: function.lambda_handler
+      CodeUri: .
+      MemorySize: 256
+      Timeout: 30
+      Layers:
+        - !Sub "arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:layer:message-layer:${MessageLayerVersion}"
+      Policies:
+        - AWSLambdaBasicExecutionRole
+        - Version: '2012-10-17'
+          Statement:
+            - Effect: Allow
+              Action:
+                - comprehend:DetectSentiment
+                - comprehend:DetectEntities
+                - comprehend:DetectKeyPhrases
+              Resource: '*'
+      Events:
+        ApiEvent:
+          Type: Api
+          Properties:
+            Path: /preference/extract
+            Method: post
+        OptionsEvent:
+          Type: Api
+          Properties:
+            Path: /preference/extract
+            Method: options
+
+Outputs:
+  PreferenceExtractionApiUrl:
+    Description: "Preference Extraction API Gateway endpoint URL"
+    Value: !Sub "https://${ServerlessRestApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/preference/extract"
+  PreferenceExtractionFunctionArn:
+    Description: "Preference Extraction Function ARN"
+    Value: !GetAtt PreferenceExtractionFunction.Arn

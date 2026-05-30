@@ -1,0 +1,47 @@
+@import './global.css';
+
+input {
+    border: 1px solid #ccc;
+    border-radius: 16px;
+    flex: 1;
+    font-size: var(--font-size-base);
+    outline: none;
+    padding: 8px;
+}
+
+select {
+    border: 1px solid #ccc;
+    border-radius: 16px;
+    flex: 1;
+    font-size: var(--font-size-base);
+    outline: none;
+    padding: 8px;
+}
+
+.plan {
+    border: solid 2.5px #aaa;
+    border-radius: 16px;
+    margin-bottom: 15px;
+    padding: 0 15px;
+}
+
+.plan-content {
+    font-size: calc(var(--font-size-base) - 2px);
+    padding: 0 5px 10px;
+    overflow: hidden;
+}
+
+.plan-header {
+    align-items: center;
+    display: flex;
+    justify-content: space-between;
+}
+
+.plan-header span {
+    color:#ccc;
+    margin-right: 10px;
+}
+
+.plan-list {
+    margin-top: 2rem;
+}

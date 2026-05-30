@@ -1,0 +1,312 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+
+Parameters:
+  ExistingApiId:
+    Type: String
+    Description: Existing REST API ID
+    Default: "7xhw2qub6l"
+  ExistingApiRootResourceId:
+    Type: String
+    Description: Root Resource ID of existing API
+    Default: "mvl7kjxoi2"
+  CognitoUserPoolArn:
+    Type: String
+    Description: Cognito User Pool ARN
+    Default: arn:aws:cognito-idp:us-east-1:033481298544:userpool/us-east-1_tjhTbNShM
+  AWSLayerVersion:
+    Type: Number
+    Description: AWS Layer Version
+    Default: 38
+  MessageLayerVersion:
+    Type: Number
+    Description: Message Layer Version
+    Default: 10
+  LivewellCoreLayerVersion:
+    Type: Number
+    Description: Livewell Core Layer Version
+    Default: 99
+
+Globals:
+  Function:
+    Timeout: 30
+    Runtime: python3.11
+
+Resources:
+  # API Gateway Resources
+  PlansResource:
+    Type: AWS::ApiGateway::Resource
+    Properties:
+      RestApiId: "7xhw2qub6l"
+      ParentId: "mvl7kjxoi2"
+      PathPart: plans
+
+  PlanIdResource:
+    Type: AWS::ApiGateway::Resource
+    Properties:
+      RestApiId: "7xhw2qub6l"
+      ParentId: !Ref PlansResource
+      PathPart: "{plan_id}"
+
+  # POST method for creating plans
+  SavePlanMethod:
+    Type: AWS::ApiGateway::Method
+    Properties:
+      RestApiId: "7xhw2qub6l"
+      ResourceId: !Ref PlansResource
+      HttpMethod: POST
+      AuthorizationType: COGNITO_USER_POOLS
+      AuthorizerId: c6djkx
+      Integration:
+        Type: AWS_PROXY
+        IntegrationHttpMethod: POST
+        Uri: !Sub arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${SavePlanFunction.Arn}/invocations
+
+  # GET method for all plans
+  GetAllPlansMethod:
+    Type: AWS::ApiGateway::Method
+    Properties:
+      RestApiId: "7xhw2qub6l"
+      ResourceId: !Ref PlansResource
+      HttpMethod: GET
+      AuthorizationType: COGNITO_USER_POOLS
+      AuthorizerId: c6djkx
+      Integration:
+        Type: AWS_PROXY
+        IntegrationHttpMethod: POST
+        Uri: !Sub arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${GetPlanFunction.Arn}/invocations
+
+  # GET method for specific plan by ID
+  GetPlanMethod:
+    Type: AWS::ApiGateway::Method
+    Properties:
+      RestApiId: "7xhw2qub6l"
+      ResourceId: !Ref PlanIdResource
+      HttpMethod: GET
+      AuthorizationType: COGNITO_USER_POOLS
+      AuthorizerId: c6djkx
+      Integration:
+        Type: AWS_PROXY
+        IntegrationHttpMethod: POST
+        Uri: !Sub arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${GetPlanFunction.Arn}/invocations
+
+  # DELETE method for specific plan by ID
+  DeletePlanMethod:
+    Type: AWS::ApiGateway::Method
+    Properties:
+      RestApiId: "7xhw2qub6l"
+      ResourceId: !Ref PlanIdResource
+      HttpMethod: DELETE
+      AuthorizationType: COGNITO_USER_POOLS
+      AuthorizerId: c6djkx
+      Integration:
+        Type: AWS_PROXY
+        IntegrationHttpMethod: POST
+        Uri: !Sub arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${DeletePlanFunction.Arn}/invocations
+
+  # PATCH method for updating plan context
+  UpdatePlanMethod:
+    Type: AWS::ApiGateway::Method
+    Properties:
+      RestApiId: "7xhw2qub6l"
+      ResourceId: !Ref PlanIdResource
+      HttpMethod: PATCH
+      AuthorizationType: COGNITO_USER_POOLS
+      AuthorizerId: c6djkx
+      Integration:
+        Type: AWS_PROXY
+        IntegrationHttpMethod: POST
+        Uri: !Sub arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${UpdatePlanFunction.Arn}/invocations
+
+  # OPTIONS method for /plans
+  PlansOptionsMethod:
+    Type: AWS::ApiGateway::Method
+    Properties:
+      RestApiId: "7xhw2qub6l"
+      ResourceId: !Ref PlansResource
+      HttpMethod: OPTIONS
+      AuthorizationType: NONE
+      Integration:
+        Type: MOCK
+        IntegrationResponses:
+          - StatusCode: 200
+            ResponseParameters:
+              method.response.header.Access-Control-Allow-Headers: "'Content-Type,Authorization,X-Amz-Date,X-Api-Key,X-Amz-Security-Token'"
+              method.response.header.Access-Control-Allow-Methods: "'GET,POST,PATCH,OPTIONS'"
+              method.response.header.Access-Control-Allow-Origin: "'*'"
+            ResponseTemplates:
+              application/json: ''
+        RequestTemplates:
+          application/json: '{"statusCode": 200}'
+        PassthroughBehavior: WHEN_NO_MATCH
+      MethodResponses:
+        - StatusCode: 200
+          ResponseParameters:
+            method.response.header.Access-Control-Allow-Headers: true
+            method.response.header.Access-Control-Allow-Methods: true
+            method.response.header.Access-Control-Allow-Origin: true
+
+  # OPTIONS method for /plans/{plan_id}
+  PlanIdOptionsMethod:
+    Type: AWS::ApiGateway::Method
+    Properties:
+      RestApiId: "7xhw2qub6l"
+      ResourceId: !Ref PlanIdResource
+      HttpMethod: OPTIONS
+      AuthorizationType: NONE
+      Integration:
+        Type: MOCK
+        IntegrationResponses:
+          - StatusCode: 200
+            ResponseParameters:
+              method.response.header.Access-Control-Allow-Headers: "'Content-Type,Authorization,X-Amz-Date,X-Api-Key,X-Amz-Security-Token'"
+              method.response.header.Access-Control-Allow-Methods: "'GET,DELETE,PATCH,OPTIONS'"
+              method.response.header.Access-Control-Allow-Origin: "'*'"
+            ResponseTemplates:
+              application/json: ''
+        RequestTemplates:
+          application/json: '{"statusCode": 200}'
+        PassthroughBehavior: WHEN_NO_MATCH
+      MethodResponses:
+        - StatusCode: 200
+          ResponseParameters:
+            method.response.header.Access-Control-Allow-Headers: true
+            method.response.header.Access-Control-Allow-Methods: true
+            method.response.header.Access-Control-Allow-Origin: true
+
+  # Lambda Functions
+  SavePlanFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: plans-save
+      CodeUri: save-plan
+      Handler: function.lambda_handler
+      Runtime: python3.11
+      Timeout: 30
+      MemorySize: 256
+      Layers:
+        - !Sub "arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:layer:message-layer:${MessageLayerVersion}"
+        - !Sub "arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:layer:aws-layer:${AWSLayerVersion}"
+        - !Sub "arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:layer:livewell-core-layer:${LivewellCoreLayerVersion}"
+      Policies:
+        - DynamoDBCrudPolicy:
+            TableName: livewell
+        - S3CrudPolicy:
+            BucketName: livewell-plans
+        - S3CrudPolicy:
+            BucketName: livewell-profiles
+
+  GetPlanFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: plans-get
+      CodeUri: get-plan
+      Handler: function.lambda_handler
+      Runtime: python3.11
+      Timeout: 30
+      MemorySize: 256
+      Layers:
+        - !Sub "arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:layer:message-layer:${MessageLayerVersion}"
+        - !Sub "arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:layer:aws-layer:${AWSLayerVersion}"
+        - !Sub "arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:layer:livewell-core-layer:${LivewellCoreLayerVersion}"
+      Policies:
+        - DynamoDBReadPolicy:
+            TableName: livewell
+        - S3ReadPolicy:
+            BucketName: livewell-plans
+        - S3ReadPolicy:
+            BucketName: livewell-profiles
+
+  DeletePlanFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: plans-delete
+      CodeUri: delete-plan
+      Handler: function.lambda_handler
+      Runtime: python3.11
+      Timeout: 30
+      MemorySize: 256
+      Layers:
+        - !Sub "arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:layer:message-layer:${MessageLayerVersion}"
+        - !Sub "arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:layer:aws-layer:${AWSLayerVersion}"
+        - !Sub "arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:layer:livewell-core-layer:${LivewellCoreLayerVersion}"
+      Policies:
+        - DynamoDBCrudPolicy:
+            TableName: livewell
+        - S3CrudPolicy:
+            BucketName: livewell-plans
+
+  UpdatePlanFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: plans-update
+      CodeUri: update-plan
+      Handler: function.lambda_handler
+      Runtime: python3.11
+      Timeout: 30
+      MemorySize: 256
+      Layers:
+        - !Sub "arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:layer:message-layer:${MessageLayerVersion}"
+        - !Sub "arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:layer:aws-layer:${AWSLayerVersion}"
+        - !Sub "arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:layer:livewell-core-layer:${LivewellCoreLayerVersion}"
+      Policies:
+        - DynamoDBCrudPolicy:
+            TableName: livewell
+        - S3CrudPolicy:
+            BucketName: livewell-plans
+        - S3CrudPolicy:
+            BucketName: livewell-profiles
+
+  # Lambda Permissions
+  SavePlanPermission:
+    Type: AWS::Lambda::Permission
+    Properties:
+      FunctionName: !Ref SavePlanFunction
+      Action: lambda:InvokeFunction
+      Principal: apigateway.amazonaws.com
+      SourceArn: !Sub "arn:aws:execute-api:${AWS::Region}:${AWS::AccountId}:7xhw2qub6l/*/*"
+
+  GetPlanPermission:
+    Type: AWS::Lambda::Permission
+    Properties:
+      FunctionName: !Ref GetPlanFunction
+      Action: lambda:InvokeFunction
+      Principal: apigateway.amazonaws.com
+      SourceArn: !Sub "arn:aws:execute-api:${AWS::Region}:${AWS::AccountId}:7xhw2qub6l/*/*"
+
+  DeletePlanPermission:
+    Type: AWS::Lambda::Permission
+    Properties:
+      FunctionName: !Ref DeletePlanFunction
+      Action: lambda:InvokeFunction
+      Principal: apigateway.amazonaws.com
+      SourceArn: !Sub "arn:aws:execute-api:${AWS::Region}:${AWS::AccountId}:7xhw2qub6l/*/*"
+
+  UpdatePlanPermission:
+    Type: AWS::Lambda::Permission
+    Properties:
+      FunctionName: !Ref UpdatePlanFunction
+      Action: lambda:InvokeFunction
+      Principal: apigateway.amazonaws.com
+      SourceArn: !Sub "arn:aws:execute-api:${AWS::Region}:${AWS::AccountId}:7xhw2qub6l/*/*"
+
+Outputs:
+  SavePlanFunction:
+    Description: "Save Plan Lambda Function ARN"
+    Value: !GetAtt SavePlanFunction.Arn
+
+  GetPlanFunction:
+    Description: "Get Plan Lambda Function ARN"
+    Value: !GetAtt GetPlanFunction.Arn
+
+  DeletePlanFunction:
+    Description: "Delete Plan Lambda Function ARN"
+    Value: !GetAtt DeletePlanFunction.Arn
+
+  UpdatePlanFunction:
+    Description: "Update Plan Lambda Function ARN"
+    Value: !GetAtt UpdatePlanFunction.Arn
+
+  PlansApi:
+    Description: "API Gateway endpoint URL for Plans"
+    Value: "https://7xhw2qub6l.execute-api.us-east-1.amazonaws.com/prod/plans"

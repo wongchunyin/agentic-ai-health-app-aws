@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentView xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:toolkit="http://schemas.microsoft.com/dotnet/2022/maui/toolkit"
+             x:Class="LiveWell.Views.PlanView">
+    <Frame BorderColor="Gray" CornerRadius="10" Padding="15" HasShadow="False">
+        <toolkit:Expander>
+            <toolkit:Expander.Header>
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+
+                    <VerticalStackLayout Grid.Column="0">
+                        <Label x:Name="LabelName" FontAttributes="Bold" FontSize="16" TextColor="Black"/>
+                        <Label x:Name="LabelFrequency" FontSize="16" TextColor="Black"/>
+                        <Label x:Name="LabelStatus" FontAttributes="Italic" FontSize="16" TextColor="Black"/>
+                    </VerticalStackLayout>
+                    <CheckBox x:Name="CheckBoxCompleted" Grid.Column="1"/>
+                </Grid>
+            </toolkit:Expander.Header>
+
+            <VerticalStackLayout Padding="20" Spacing="15">
+                <Label Text="Action" FontSize="16" TextColor="Black" FontAttributes="Bold" VerticalOptions="Center"/>
+                <Label x:Name="LabelAction" FontSize="16" TextColor="Black"/>
+                <Label Text="Context" FontSize="16" TextColor="Black" FontAttributes="Bold" VerticalOptions="Center"/>
+                <Label x:Name="LabelContext" FontSize="16" TextColor="Black"/>
+                <Label Text="Target" FontSize="16" TextColor="Black" FontAttributes="Bold" VerticalOptions="Center"/>
+                <Label x:Name="LabelTarget" FontSize="16" TextColor="Black"/>
+                <Label Text="Time" FontSize="16" TextColor="Black" FontAttributes="Bold" VerticalOptions="Center"/>
+                <Label x:Name="LabelTime" FontSize="16" TextColor="Black"/>
+
+                <Button x:Name="BtnEdit" Text="Edit" HorizontalOptions="Start" Clicked="BtnEdit_Clicked"/>
+            </VerticalStackLayout>
+        </toolkit:Expander>
+    </Frame>
+</ContentView>

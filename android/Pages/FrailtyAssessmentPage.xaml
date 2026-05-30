@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="LiveWell.Pages.FrailtyAssessmentPage"
+             Title="FrailtyAssessmentPage">
+    <Grid>
+        <ActivityIndicator x:Name="LoadingIndicator" Color="White"
+                           Background="Black" Opacity="0.5" ZIndex="100"
+                           IsRunning="True" IsVisible="False"/>
+
+        <ScrollView Padding="30">
+            <VerticalStackLayout Spacing="15">
+
+                <Label Text="Which frailty scale would you like to use?" FontSize="16" TextColor="Black"/>
+                <Picker x:Name="FrailtyScalePicker"
+                    Title="Select frailty scale"
+                    FontSize="16"
+                    TextColor="Black"
+                    SelectedIndexChanged="FrailtyScalePicker_SelectedIndexChanged">
+                    <Picker.ItemsSource>
+                        <x:Array Type="{x:Type x:String}">
+                            <x:String>FRAIL</x:String>
+                            <x:String>ROCKWOOD_MITNITSKI</x:String>
+                        </x:Array>
+                    </Picker.ItemsSource>
+                </Picker>
+
+                <VerticalStackLayout x:Name="AssessmentContentContainer" Spacing="15"/>
+
+            </VerticalStackLayout>
+        </ScrollView>
+    </Grid>
+</ContentPage>

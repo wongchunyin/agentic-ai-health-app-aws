@@ -1,0 +1,59 @@
+{
+    "tools":[
+    {
+      "name": "check_outdoor_weather",
+      "description": 
+      "Check if the weather is suitable for outdoor activities for a specific location and time period. The function require location for the weather forecast. There are two options of parameters combination: 1) Latitude and Longitude coordinates (most precise), OR 2) A suburb and capital city name. If coordinates are provided, any suburb/capital input will be ignored. The user must also provide a start and end time for the activity in ISO format. The function will return two pieces of information: 1) A boolean indicating if the weather is suitable for outdoor activities, and 2) A brief summary of the weather conditions during the specified time period.",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "latitude": {
+            "type": "number",
+            "description": "The latitude of the location, e.g., 37.7749"
+          },
+          "longitude": {
+            "type": "number",
+            "description": "The longitude of the location, e.g., -122.4194"
+          },
+          "suburb": {
+            "type": "string",
+            "description": "The suburb or city name, e.g., Parkside"
+          },
+          "capital": {
+            "type": "string",
+            "description": "The capital city of the state, e.g., Adelaide"
+          },
+          "start_datetime": {
+            "type": "string",
+            "description": "The start time of the outdoor activity in ISO format, e.g., 2023-10-01T14:00:00"
+          },
+          "end_datetime": {
+            "type": "string",
+            "description": "The end time of the outdoor activity in ISO format, e.g., 2023-10-01T16:00:00"
+          }
+        },
+        "required": ["start_datetime", "end_datetime"]
+      }
+    },
+    {
+    "name": "convert_nl_to_iso_datetime",
+    "description": "Converts a natural language date and time string (e.g., 'tomorrow afternoon', 'next Friday at 3pm') to a machine-readable ISO 8601 formatted datetime string. The function assumes a default timezone of 'Australia/Adelaide' if not specified.",
+    "parameters": {
+        "type": "object",
+        "properties": {
+            "date_string": {
+                "type": "string",
+                "description": "The natural language date and time to convert."
+            },
+            "from_timezone": {
+                "type": "string",
+                "description": "The timezone of the user's location (optional). Defaults to 'Australia/Adelaide'."
+            }
+        },
+        "required": ["date_string"]
+    }
+    }
+
+  ]
+
+}

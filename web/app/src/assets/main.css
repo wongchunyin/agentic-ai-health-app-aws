@@ -1,0 +1,223 @@
+@import './global.css';
+@import url('https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200&display=swap');
+
+body {
+    background: var(--background-color);
+    color: var(--text-color);
+    font-family: var(--font-style-base);
+    font-size: var(--font-size-base);
+    margin: 0;
+}
+
+button {
+    background: var(--primary-color);
+    border: none;
+    border-radius: 12px;
+    color: #fff;
+    cursor: pointer;
+    font-size: var(--font-size-base);
+    margin: 0 0 12px;
+    padding: 8px 16px;
+}
+
+h2 {
+    margin: 10px 0;
+}
+
+header {
+    background: var(--primary-color);
+    color: #fff;
+    display: flex;
+    justify-content: space-between;
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+}
+
+main {
+    margin: 0 auto 150px;
+    max-width: 700px;
+    padding: 2rem;
+}
+
+md-linear-progress {
+    margin: 0 15px
+}
+
+md-circular-progress {
+    
+    margin: 0 10px
+}
+
+md-outlined-select {
+    width: auto;
+    margin: 10px;
+}
+
+md-outlined-text-field {
+    width: auto;
+    margin: 10px;
+}
+
+nav {
+    display: flex;
+    float: right;
+    height: 100%;
+}
+
+nav a {
+    align-items: center;
+    background: var(--primary-color);
+    color: #fff;
+    display: flex;
+    flex-direction: column;
+    font-weight: bold;
+    justify-content: center;
+    text-decoration: none;
+    width: 120px;
+}
+
+nav a:hover {
+    background: var(--primary-color-hover);
+}
+
+nav a p {
+    margin: 5px;
+}
+
+nav a img {
+    filter: brightness(0) invert(100%);
+}
+
+.btn-center {
+    margin: 10px 0;
+}
+
+.btn-left {
+    float: left;
+    margin: 5px 10px 10px 0;
+}
+
+.btn-right {
+    float: right;
+    margin: 5px 0 10px 10px;
+}
+
+.center-txt {
+    text-align: center;
+}
+
+.content {
+    border: solid 2.5px #aaa;
+    border-radius: 16px;
+    display: flex;
+    flex-direction: column;
+    margin: 1rem 0rem;
+    padding: 10px 25px 10px;
+}
+
+.dropbtn {
+    border-radius: 0;
+    height: 85px;
+    font-family: var(--font-style-base);
+    font-size: var(--font-size-base);
+    font-weight: bold;
+    margin: 0;
+    width: 90px;
+}
+
+.dropbtn img {
+    filter: brightness(0) invert(100%);
+}
+
+.dropdown {
+    position: relative;
+}
+
+.dropdown-content {
+    box-shadow: 0 6px 24px rgba(0,0,0,0.2);
+    display: none;
+    position: absolute;
+    right: 0;
+}
+
+.dropdown-content a {
+    display: block;
+    padding: 18px;
+    text-decoration: none;
+}
+
+.dropdown-content a:hover {
+    background-color: var(--primary-color-hover);
+}
+
+.dropdown:hover .dropdown-content {
+    display: block;
+}
+
+.dropdown:hover .dropbtn {
+    background-color: var(--primary-color-hover);
+}
+
+.flex-column {
+    display: flex;
+    flex-direction: column;
+}
+
+.flex-row {
+    align-items: center;
+    display: flex;
+}
+
+.left-header-content {
+    align-items: center;
+    display: flex;
+}
+
+.login {
+    align-items: center;
+    background-color: var(--primary-color);
+    color: #fff;
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+    justify-content: center;
+    margin: 0;
+}
+
+.login h1 {
+    font-size: 40px;
+    margin: 40px 0 25px 0;
+}
+
+.login h2 {
+    font-weight: lighter;
+    margin: 0 0 50px 0;
+}
+
+.login-btn {
+    height: 60px;
+    font-size: large;
+    font-weight: bold;
+    width: 150px;
+}
+
+.logo-white {
+    filter: brightness(0) invert(100%);
+    margin: 0 30px;
+}
+
+.prompt {
+    align-items: center;
+    border: solid 2.5px #aaa;
+    border-radius: 16px;
+    display: flex;
+    flex-direction: column;
+    margin: 1rem 0rem;
+    padding: 15px;
+}
+
+.right-header-content {
+    align-items: center;
+    display: flex;
+}

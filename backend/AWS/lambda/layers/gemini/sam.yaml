@@ -1,0 +1,22 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+
+Resources:
+  GeminiLayer:
+    Type: AWS::Serverless::LayerVersion
+    Properties:
+      LayerName: gemini-layer
+      Description: Gemini AI helper layer
+      ContentUri: .
+      CompatibleRuntimes:
+        - python3.9
+        - python3.10
+        - python3.11
+      RetentionPolicy: Retain
+
+Outputs:
+  GeminiLayerArn:
+    Description: ARN of the Gemini Layer
+    Value: !Ref GeminiLayer
+    Export:
+      Name: !Sub ${AWS::StackName}-GeminiLayerArn

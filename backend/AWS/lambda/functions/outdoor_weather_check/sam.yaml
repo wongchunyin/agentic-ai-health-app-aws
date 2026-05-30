@@ -1,0 +1,113 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31  # This enables SAM syntax
+
+Parameters:
+  AIAgentLayerVersion:
+    Type: Number
+    Default: 45
+    Description: Version of the ai-agent layer
+  MessageLayerVersion:
+    Type: Number
+    Default: 10
+    Description: Version of the message layer
+  ExistingApiId:
+    Type: String
+    Description: Existing REST API ID
+    Default: 7xhw2qub6l
+  ExistingApiRootResourceId:
+    Type: String
+    Description: Root Resource ID of existing API
+    Default: mvl7kjxoi2
+
+Globals:
+  Api:
+    Cors:
+      AllowMethods: "'GET,POST,PUT,DELETE,OPTIONS'"
+      AllowHeaders: "'Content-Type,Authorization,X-Requested-With,Accept,Origin,User-Agent,Cache-Control,Pragma'"
+      AllowOrigin: "'*'"
+      MaxAge: 86400
+
+Resources:
+  WeatherCheckResource:
+    Type: AWS::ApiGateway::Resource
+    Properties:
+      RestApiId: !Ref ExistingApiId
+      ParentId: !Ref ExistingApiRootResourceId
+      PathPart: weather-check
+
+  WeatherCheckGetMethod:
+    Type: AWS::ApiGateway::Method
+    Properties:
+      RestApiId: !Ref ExistingApiId
+      ResourceId: !Ref WeatherCheckResource
+      HttpMethod: GET
+      AuthorizationType: COGNITO_USER_POOLS
+      AuthorizerId: c6djkx
+      Integration:
+        Type: AWS_PROXY
+        IntegrationHttpMethod: POST
+        Uri: !Sub arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${OutdoorWeatherCheckFunction.Arn}/invocations
+
+  WeatherCheckOptionsMethod:
+    Type: AWS::ApiGateway::Method
+    Properties:
+      RestApiId: !Ref ExistingApiId
+      ResourceId: !Ref WeatherCheckResource
+      HttpMethod: OPTIONS
+      AuthorizationType: NONE
+      Integration:
+        Type: MOCK
+        IntegrationResponses:
+          - StatusCode: 200
+            ResponseParameters:
+              method.response.header.Access-Control-Allow-Headers: "'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token'"
+              method.response.header.Access-Control-Allow-Methods: "'GET,OPTIONS'"
+              method.response.header.Access-Control-Allow-Origin: "'*'"
+        RequestTemplates:
+          application/json: '{"statusCode": 200}'
+      MethodResponses:
+        - StatusCode: 200
+          ResponseParameters:
+            method.response.header.Access-Control-Allow-Headers: true
+            method.response.header.Access-Control-Allow-Methods: true
+            method.response.header.Access-Control-Allow-Origin: true
+
+  # 1. Define the Lambda Function
+  OutdoorWeatherCheckFunction:
+    Type: AWS::Serverless::Function  # SAM resource type
+    Properties:
+      FunctionName: outdoor-weather-check  # Human-readable name
+      Runtime: python3.11           # Python version
+      Handler: function.lambda_handler  # Entry point: file.function
+      CodeUri: .                    # Code location (current directory)
+      Timeout: 30                   # Max execution time (seconds)
+      MemorySize: 128               # Memory allocation (MB)
+      
+      # 2. Attach the Layer
+      Layers:
+        - !Sub "arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:layer:ai-agent-layer:${AIAgentLayerVersion}"
+        - !Sub "arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:layer:message-layer:${MessageLayerVersion}"
+      
+      # 3. Set Permissions
+      Policies:
+        - AWSLambdaBasicExecutionRole  # Basic CloudWatch logging
+      
+
+
+
+
+  OutdoorWeatherCheckPermission:
+    Type: AWS::Lambda::Permission
+    Properties:
+      FunctionName: !Ref OutdoorWeatherCheckFunction
+      Action: lambda:InvokeFunction
+      Principal: apigateway.amazonaws.com
+      SourceArn: !Sub arn:aws:execute-api:${AWS::Region}:${AWS::AccountId}:${ExistingApiId}/*/*
+
+Outputs:
+  OutdoorWeatherCheckFunctionArn:
+    Description: "Outdoor Weather Check Function ARN"
+    Value: !GetAtt OutdoorWeatherCheckFunction.Arn
+  OutdoorWeatherCheckApiUrl:
+    Description: "Outdoor Weather Check API Gateway endpoint URL"
+    Value: !Sub "https://${ExistingApiId}.execute-api.${AWS::Region}.amazonaws.com/Prod/weather-check"

@@ -1,0 +1,22 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+
+Resources:
+  MessageLayer:
+    Type: AWS::Serverless::LayerVersion
+    Properties:
+      LayerName: message-layer
+      Description: Message helper layer for API responses and CORS
+      ContentUri: .
+      CompatibleRuntimes:
+        - python3.9
+        - python3.10
+        - python3.11
+      RetentionPolicy: Retain
+
+Outputs:
+  MessageLayerArn:
+    Description: ARN of the Message Layer
+    Value: !Ref MessageLayer
+    Export:
+      Name: !Sub ${AWS::StackName}-MessageLayerArn

@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>LiveWell Chatbot</title>
+    <link rel="stylesheet" href="index.css">
+    <link rel="stylesheet" href="chatbot.css">
+</head>
+<body>
+     <div class="page">
+        <header>
+            <h1>LiveWell</h1>
+        </header>
+        <nav>
+            <a>Home</a>
+            <a>LiveWell Chatbot</a>
+        </nav>
+        <main>
+            <div class="chat-container">
+                <div class="chat-messages" id="chatMessages"></div>
+                <form class="chat-input-area" id="chatForm" autocomplete="off">
+                    <input type="text" class="chat-input" id="chatInput" placeholder="Type a message..." required />
+                    <button type="submit" class="chat-send-btn">Send</button>
+                </form>
+            </div>
+        </main>
+    </div>
+    <script src="chatbot.js"></script>
+</body>
+</html>

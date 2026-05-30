@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="LiveWell.Pages.FrailtyPage"
+             Title="Frailty">
+    <Grid>
+        <ActivityIndicator x:Name="LoadingIndicator" Color="White"
+                           Background="Black" Opacity="0.5" ZIndex="100"
+                           IsRunning="True" IsVisible="False"/>
+
+        <ScrollView x:Name="FrailtyListLayout" IsVisible="False">
+            <VerticalStackLayout Padding="20" Spacing="24">
+                <!-- Frailty Score Card -->
+                <Frame CornerRadius="16" Padding="18" BackgroundColor="#F5F5F5" HasShadow="True">
+                    <VerticalStackLayout Spacing="10">
+                        <Label Text="Frailty Score" FontAttributes="Bold" FontSize="20" />
+                        <Label x:Name="ScoreLabel" Text="0" FontSize="36" TextColor="Green" FontAttributes="Bold" />
+                        <HorizontalStackLayout Spacing="16">
+                            <Label Text="Scale:" FontAttributes="Bold" />
+                            <Label x:Name="ScaleLabel" Text="Default" />
+                        </HorizontalStackLayout>
+                        <HorizontalStackLayout Spacing="16" VerticalOptions="Center">
+                            <Label Text="Date" FontAttributes="Bold" />
+                            <!--<Label Text="{Binding FrailtyAssessmentStatus}" TextColor="{Binding AssessmentStatusColor}" />-->
+                            <Label x:Name="DateLabel" Text="08/10/2025" />
+                        </HorizontalStackLayout>
+                        <Button Text="Take another assessment" Margin="0,15,0,0" FontSize="18"  Clicked="Button_Clicked"/>
+                    </VerticalStackLayout>
+                </Frame>
+
+                <!-- Frailty Scale Attributes List -->
+                <Label Text="Recent Assessments" FontAttributes="Bold" FontSize="20" />
+                <VerticalStackLayout x:Name="HistoryStackLayout"/>
+            </VerticalStackLayout>
+        </ScrollView>
+
+        <VerticalStackLayout x:Name="EmptyLayout" VerticalOptions="Center" Margin="30" Spacing="10">
+            <Label 
+                    Text="It seems empty here."
+                    FontSize="30"
+                    VerticalOptions="Center" 
+                    HorizontalOptions="Center" />
+            <Label 
+                    Text="You haven't taken any frailty assessment."
+                    FontSize="20"
+                    VerticalOptions="Center" 
+                    HorizontalOptions="Center"
+                    Padding="20"/>
+            <Button 
+                    Text="Take assessment" 
+                    Clicked="Button_Clicked"
+                    VerticalOptions="Center" 
+                    HorizontalOptions="Center" />
+        </VerticalStackLayout>
+    </Grid>
+
+</ContentPage>

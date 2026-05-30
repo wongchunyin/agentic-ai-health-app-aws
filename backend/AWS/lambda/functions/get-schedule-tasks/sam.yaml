@@ -1,0 +1,135 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+
+Parameters:
+  ExistingApiId:
+    Type: String
+    Description: Existing REST API ID
+    Default: "7xhw2qub6l"
+  ExistingApiRootResourceId:
+    Type: String
+    Description: Root Resource ID of existing API
+    Default: "mvl7kjxoi2"
+  CognitoUserPoolArn:
+    Type: String
+    Description: Cognito User Pool ARN
+    Default: arn:aws:cognito-idp:us-east-1:033481298544:userpool/us-east-1_tjhTbNShM
+  AWSLayerVersion:
+    Type: Number
+    Description: AWS Layer Version
+    Default: 38
+  MessageLayerVersion:
+    Type: Number
+    Description: Message Layer Version
+    Default: 10
+  LivewellCoreLayerVersion:
+    Type: Number
+    Description: Livewell Core Layer Version
+    Default: 99
+
+Globals:
+  Function:
+    Timeout: 30
+    Runtime: python3.11
+
+Resources:
+  # API Gateway Resources
+  ScheduleTasksResource:
+    Type: AWS::ApiGateway::Resource
+    Properties:
+      RestApiId: "7xhw2qub6l"
+      ParentId: "mvl7kjxoi2"
+      PathPart: schedule-tasks
+
+  # GET method for schedule tasks
+  GetScheduleTasksMethod:
+    Type: AWS::ApiGateway::Method
+    Properties:
+      RestApiId: "7xhw2qub6l"
+      ResourceId: !Ref ScheduleTasksResource
+      HttpMethod: GET
+      AuthorizationType: COGNITO_USER_POOLS
+      AuthorizerId: c6djkx
+      Integration:
+        Type: AWS_PROXY
+        IntegrationHttpMethod: POST
+        Uri: !Sub arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${GetScheduleTasksFunction.Arn}/invocations
+      MethodResponses:
+        - StatusCode: 200
+          ResponseParameters:
+            method.response.header.Access-Control-Allow-Origin: true
+
+  # OPTIONS method for CORS
+  GetScheduleTasksOptionsMethod:
+    Type: AWS::ApiGateway::Method
+    Properties:
+      RestApiId: "7xhw2qub6l"
+      ResourceId: !Ref ScheduleTasksResource
+      HttpMethod: OPTIONS
+      AuthorizationType: NONE
+      Integration:
+        Type: MOCK
+        IntegrationResponses:
+          - StatusCode: 200
+            ResponseParameters:
+              method.response.header.Access-Control-Allow-Headers: "'Content-Type,Authorization,X-Amz-Date,X-Api-Key,X-Amz-Security-Token'"
+              method.response.header.Access-Control-Allow-Methods: "'GET,OPTIONS'"
+              method.response.header.Access-Control-Allow-Origin: "'*'"
+            ResponseTemplates:
+              application/json: ''
+        RequestTemplates:
+          application/json: '{"statusCode": 200}'
+        PassthroughBehavior: WHEN_NO_MATCH
+      MethodResponses:
+        - StatusCode: 200
+          ResponseParameters:
+            method.response.header.Access-Control-Allow-Headers: true
+            method.response.header.Access-Control-Allow-Methods: true
+            method.response.header.Access-Control-Allow-Origin: true
+          ResponseModels:
+            application/json: Empty
+
+  GetScheduleTasksFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: get-schedule-tasks
+      CodeUri: .
+      Handler: function.lambda_handler
+      Runtime: python3.11
+      Timeout: 30
+      MemorySize: 256
+      Layers:
+        - !Sub "arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:layer:message-layer:${MessageLayerVersion}"
+        - !Sub "arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:layer:aws-layer:${AWSLayerVersion}"
+        - !Sub "arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:layer:livewell-core-layer:${LivewellCoreLayerVersion}"
+      Policies:
+        - DynamoDBReadPolicy:
+            TableName: livewell
+
+  # API Gateway Deployment
+  ApiDeployment:
+    Type: AWS::ApiGateway::Deployment
+    DependsOn:
+      - GetScheduleTasksMethod
+      - GetScheduleTasksOptionsMethod
+    Properties:
+      RestApiId: "7xhw2qub6l"
+      StageName: prod
+      Description: "Deploy get-schedule-tasks methods to prod"
+
+  # Lambda Permission
+  GetScheduleTasksPermission:
+    Type: AWS::Lambda::Permission
+    Properties:
+      FunctionName: !Ref GetScheduleTasksFunction
+      Action: lambda:InvokeFunction
+      Principal: apigateway.amazonaws.com
+      SourceArn: !Sub arn:aws:execute-api:${AWS::Region}:${AWS::AccountId}:7xhw2qub6l/*/*
+
+Outputs:
+  GetScheduleTasksApi:
+    Description: "API Gateway endpoint URL for Get Schedule Tasks function"
+    Value: !Sub "https://7xhw2qub6l.execute-api.${AWS::Region}.amazonaws.com/prod/schedule-tasks"
+  GetScheduleTasksFunction:
+    Description: "Get Schedule Tasks Lambda Function ARN"
+    Value: !GetAtt GetScheduleTasksFunction.Arn

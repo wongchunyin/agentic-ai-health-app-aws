@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="LiveWell.Pages.WelcomingPage"
+             Title="WelcomingPage">
+    <VerticalStackLayout VerticalOptions="Center" Margin="30">
+        <Image Source="logo.png" BackgroundColor="Transparent" Margin="0,0,0,20"/>
+        <Label 
+            Text="Hello!"
+            FontSize="30"
+            VerticalOptions="Center" 
+            HorizontalOptions="Center" />
+        <Label 
+            Text="Welcome to Live Well!"
+            FontSize="30"
+            VerticalOptions="Center" 
+            HorizontalOptions="Center" />
+        <Label 
+            Text="To get started, let's get to know more about you."
+            FontSize="20"
+            VerticalOptions="Center" 
+            HorizontalOptions="Center"
+            Padding="20"/>
+        <Button 
+            Text="Get Started" 
+            Clicked="Button_Clicked"
+            VerticalOptions="Center" 
+            HorizontalOptions="Center" />
+    </VerticalStackLayout>
+</ContentPage>

@@ -1,0 +1,49 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+
+Globals:
+  Api:
+    Cors:
+      AllowMethods: "'GET,POST,PUT,DELETE,OPTIONS'"
+      AllowHeaders: "'Content-Type,Authorization,X-Requested-With,Accept,Origin,User-Agent,Cache-Control,Pragma'"
+      AllowOrigin: "'*'"
+      MaxAge: 86400
+
+Resources:
+  GetSessionFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: get-session
+      Runtime: python3.11
+      Handler: function.lambda_handler
+      CodeUri: .
+      Timeout: 30
+      MemorySize: 128
+      
+      Layers:
+        - !Sub "arn:aws:lambda:us-east-1:033481298544:layer:gemini-layer:${AWSLayerVersion}"
+        - !Sub "arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:layer:message-layer:${MessageLayerVersion}"
+      
+      Policies:
+        - AWSLambdaBasicExecutionRole
+        - DynamoDBCrudPolicy:
+            TableName: livewell
+      
+      Environment:
+        Variables:
+          DYNAMODB_TABLE: livewell
+      
+      Events:
+        ApiEvent:
+          Type: Api
+          Properties:
+            Path: /session/create
+            Method: post
+
+Outputs:
+  GetSessionFunctionArn:
+    Description: "Get Session Function ARN"
+    Value: !GetAtt GetSessionFunction.Arn
+  GetSessionApiUrl:
+    Description: "Get Session API Gateway endpoint URL"
+    Value: !Sub "https://${ServerlessRestApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/session/create"

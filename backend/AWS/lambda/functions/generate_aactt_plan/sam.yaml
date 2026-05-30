@@ -1,0 +1,140 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+
+Parameters:
+  ExistingApiId:
+    Type: String
+    Description: Existing REST API ID
+    Default: "7xhw2qub6l"
+  ExistingApiRootResourceId:
+    Type: String
+    Description: Root Resource ID of existing API
+    Default: "mvl7kjxoi2"
+  CognitoUserPoolArn:
+    Type: String
+    Description: Cognito User Pool ARN
+    Default: arn:aws:cognito-idp:us-east-1:033481298544:userpool/us-east-1_tjhTbNShM
+
+Globals:
+  Function:
+    Timeout: 30
+    Runtime: python3.11
+
+Resources:
+  # API Gateway Resources
+  AACTTResource:
+    Type: AWS::ApiGateway::Resource
+    Properties:
+      RestApiId: "7xhw2qub6l"
+      ParentId: "mvl7kjxoi2"
+      PathPart: aactt
+
+  GenerateResource:
+    Type: AWS::ApiGateway::Resource
+    Properties:
+      RestApiId: "7xhw2qub6l"
+      ParentId: !Ref AACTTResource
+      PathPart: generate
+
+  GenerateAACTTPlanMethod:
+    Type: AWS::ApiGateway::Method
+    Properties:
+      RestApiId: "7xhw2qub6l"
+      ResourceId: !Ref GenerateResource
+      HttpMethod: POST
+      AuthorizationType: COGNITO_USER_POOLS
+      AuthorizerId: c6djkx
+      Integration:
+        Type: AWS_PROXY
+        IntegrationHttpMethod: POST
+        Uri: !Sub arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${GenerateAACTTPlanFunction.Arn}/invocations
+
+  AACTTOptionsMethod:
+    Type: AWS::ApiGateway::Method
+    Properties:
+      RestApiId: "7xhw2qub6l"
+      ResourceId: !Ref GenerateResource
+      HttpMethod: OPTIONS
+      AuthorizationType: NONE
+      Integration:
+        Type: MOCK
+        IntegrationResponses:
+          - StatusCode: 200
+            ResponseParameters:
+              method.response.header.Access-Control-Allow-Headers: "'Content-Type,Authorization,X-Amz-Date,X-Api-Key,X-Amz-Security-Token'"
+              method.response.header.Access-Control-Allow-Methods: "'POST,OPTIONS'"
+              method.response.header.Access-Control-Allow-Origin: "'*'"
+        RequestTemplates:
+          application/json: '{"statusCode": 200}'
+      MethodResponses:
+        - StatusCode: 200
+          ResponseParameters:
+            method.response.header.Access-Control-Allow-Headers: true
+            method.response.header.Access-Control-Allow-Methods: true
+            method.response.header.Access-Control-Allow-Origin: true
+
+  GenerateAACTTPlanFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: generate-aactt-plan
+      CodeUri: .
+      Handler: function.lambda_handler
+      Runtime: python3.11
+      Timeout: 30
+      MemorySize: 256
+      Layers:
+        - !Sub "arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:layer:ai-agent-layer:${AIAgentLayerVersion}"
+        - !Sub "arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:layer:message-layer:${MessageLayerVersion}"
+        - !Sub "arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:layer:aws-layer:${AWSLayerVersion}"
+      Environment:
+        Variables:
+          GEMINI_API_KEY: !Ref GeminiApiKey
+      Policies:
+        - S3ReadPolicy:
+            BucketName: livewell-profiles
+        - S3ReadPolicy:
+            BucketName: livewell-bucket
+        - Statement:
+            - Effect: Allow
+              Action:
+                - s3:ListBucket
+              Resource: 
+                - arn:aws:s3:::livewell-profiles
+                - arn:aws:s3:::livewell-bucket
+
+  # Lambda Permission
+  GenerateAACTTPlanPermission:
+    Type: AWS::Lambda::Permission
+    Properties:
+      FunctionName: !Ref GenerateAACTTPlanFunction
+      Action: lambda:InvokeFunction
+      Principal: apigateway.amazonaws.com
+      SourceArn: !Sub arn:aws:execute-api:${AWS::Region}:${AWS::AccountId}:7xhw2qub6l/*/*
+
+Parameters:
+
+  AIAgentLayerVersion:
+    Type: Number
+    Description: AI Agent Layer Version
+    Default: 65
+  AWSLayerVersion:
+    Type: Number
+    Description: AWS Layer Version
+    Default: 38
+  MessageLayerVersion:
+    Type: Number
+    Description: Message Layer Version
+    Default: 10
+  GeminiApiKey:
+    Type: String
+    Description: Gemini API Key
+    Default: ""
+    NoEcho: true
+
+Outputs:
+  GenerateAACTTPlanApi:
+    Description: "API Gateway endpoint URL for Generate AACTT Plan function"
+    Value: !Sub "https://7xhw2qub6l.execute-api.${AWS::Region}.amazonaws.com/Prod/aactt/generate"
+  GenerateAACTTPlanFunction:
+    Description: "Generate AACTT Plan Lambda Function ARN"
+    Value: !GetAtt GenerateAACTTPlanFunction.Arn

@@ -1,0 +1,73 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+
+Parameters:
+  AWSLayerVersion:
+    Type: Number
+    Description: AWS Layer Version
+    Default: 35
+  MessageLayerVersion:
+    Type: Number
+    Description: Message Layer Version
+    Default: 10
+  JWTSecret:
+    Type: String
+    Description: JWT Secret for signing OAuth user tokens
+    Default: "your-super-secret-jwt-key-change-this-in-production"
+    NoEcho: true
+
+Resources:
+  RefreshOAuthTokenApi:
+    Type: AWS::Serverless::Api
+    Properties:
+      StageName: Prod
+      Cors:
+        AllowMethods: "'POST,OPTIONS'"
+        AllowHeaders: "'Content-Type,X-Requested-With,Accept,Origin,User-Agent,Cache-Control,Pragma'"
+        AllowOrigin: "'*'"
+        AllowCredentials: false
+        MaxAge: 86400
+
+  RefreshOAuthTokenFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: refresh-oauth-token
+      Runtime: python3.9
+      Handler: function.lambda_handler
+      CodeUri: .
+      MemorySize: 256
+      Timeout: 30
+      Layers:
+        - !Sub "arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:layer:aws-layer:${AWSLayerVersion}"
+        - !Sub "arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:layer:message-layer:${MessageLayerVersion}"
+      Environment:
+        Variables:
+          COGNITO_USER_POOL_ID: "us-east-1_tjhTbNShM"
+          COGNITO_REGION: !Ref AWS::Region
+          JWT_SECRET: !Ref JWTSecret
+      Policies:
+        - AWSLambdaBasicExecutionRole
+        - Version: '2012-10-17'
+          Statement:
+            - Effect: Allow
+              Action:
+                - cognito-idp:AdminGetUser
+              Resource: !Sub 'arn:aws:cognito-idp:${AWS::Region}:${AWS::AccountId}:userpool/us-east-1_tjhTbNShM'
+      Events:
+        ApiEvent:
+          Type: Api
+          Properties:
+            Path: /refresh-oauth-token
+            Method: post
+            RestApiId: !Ref RefreshOAuthTokenApi
+        OptionsEvent:
+          Type: Api
+          Properties:
+            Path: /refresh-oauth-token
+            Method: options
+            RestApiId: !Ref RefreshOAuthTokenApi
+
+Outputs:
+  RefreshOAuthTokenApiUrl:
+    Description: "Refresh OAuth Token API Gateway endpoint URL"
+    Value: !Sub "https://${RefreshOAuthTokenApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/refresh-oauth-token"

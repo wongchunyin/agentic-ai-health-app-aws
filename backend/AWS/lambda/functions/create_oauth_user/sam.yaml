@@ -1,0 +1,82 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+
+Parameters:
+  AWSLayerVersion:
+    Type: Number
+    Description: AWS Layer Version (includes Cognito helpers)
+    Default: 35
+  MessageLayerVersion:
+    Type: Number
+    Description: Message Layer Version
+    Default: 10
+  CognitoUserPoolId:
+    Type: String
+    Description: Cognito User Pool ID
+    Default: "us-east-1_tjhTbNShM"
+  JWTSecret:
+    Type: String
+    Description: JWT Secret for signing Google user tokens
+    Default: "your-super-secret-jwt-key-change-this-in-production"
+    NoEcho: true
+
+Resources:
+  # API Gateway with proper CORS
+  CreateOAuthUserApi:
+    Type: AWS::Serverless::Api
+    Properties:
+      StageName: Prod
+      Cors:
+        AllowMethods: "'POST,OPTIONS'"
+        AllowHeaders: "'Content-Type,X-Requested-With,Accept,Origin,User-Agent,Cache-Control,Pragma'"
+        AllowOrigin: "'*'"
+        AllowCredentials: false
+        MaxAge: 86400
+
+  # Create OAuth User Lambda Function
+  CreateOAuthUserFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: create-oauth-user
+      Runtime: python3.9
+      Handler: function.lambda_handler
+      CodeUri: .
+      MemorySize: 256
+      Timeout: 30
+      Layers:
+        - !Sub "arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:layer:aws-layer:${AWSLayerVersion}"
+        - !Sub "arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:layer:message-layer:${MessageLayerVersion}"
+      Environment:
+        Variables:
+          COGNITO_USER_POOL_ID: !Ref CognitoUserPoolId
+          COGNITO_REGION: !Ref AWS::Region
+          JWT_SECRET: !Ref JWTSecret
+      Policies:
+        - AWSLambdaBasicExecutionRole
+        - Version: '2012-10-17'
+          Statement:
+            - Effect: Allow
+              Action:
+                - cognito-idp:AdminCreateUser
+                - cognito-idp:AdminGetUser
+                - cognito-idp:AdminDeleteUser
+                - cognito-idp:ListUsers
+              Resource: !Sub 'arn:aws:cognito-idp:${AWS::Region}:${AWS::AccountId}:userpool/${CognitoUserPoolId}'
+      Events:
+        ApiEvent:
+          Type: Api
+          Properties:
+            Path: /create-oauth-user
+            Method: post
+            RestApiId: !Ref CreateOAuthUserApi
+        OptionsEvent:
+          Type: Api
+          Properties:
+            Path: /create-oauth-user
+            Method: options
+            RestApiId: !Ref CreateOAuthUserApi
+
+Outputs:
+  CreateOAuthUserApiUrl:
+    Description: "Create OAuth User API Gateway endpoint URL"
+    Value: !Sub "https://${CreateOAuthUserApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/create-oauth-user"

@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="LiveWell.Pages.ChatPage">
+
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+
+        <Grid x:Name="TopViewContainer" Grid.Row="0" Padding="10"/>
+        
+        <VerticalStackLayout Grid.Row="1" Spacing="30" Padding="30" VerticalOptions="End">
+            <ScrollView x:Name="scrollView">
+                <VerticalStackLayout x:Name="MessagesLayout" x:FieldModifier="public">
+                    <!-- Chat messages will be added here dynamically -->
+                </VerticalStackLayout>
+            </ScrollView>
+
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+
+                <Border Grid.Column="0" StrokeShape="RoundRectangle 20">
+                    <Editor x:Name="MessageTextBox" Margin="10,5" Placeholder="Ask me anything..." AutoSize="TextChanges"/>
+                </Border>
+                <ImageButton x:Name="SendButton" Grid.Column="1" Source="send_icon.svg" WidthRequest="10" HeightRequest="10"
+                         Margin="5,5" Clicked="SendButton_Clicked"/>
+                <ActivityIndicator x:Name="SendingIndicator" Grid.Column="1" Color="{StaticResource Primary}"
+                               WidthRequest="{Binding Source=SendButton}" HeightRequest="{Binding Source=SendButton}" Margin="5,5" IsRunning="True" IsVisible="Collapse"/>
+            </Grid>
+        </VerticalStackLayout>
+
+        <Label x:Name="PlaceholderLabel" Grid.Row="1" Text="Start a conversation by typing your message below" Margin="30"
+               FontSize="36" TextColor="Gray" HorizontalOptions="Center" VerticalOptions="Center" HorizontalTextAlignment="Center" IsVisible="True"/>
+    </Grid>
+</ContentPage>

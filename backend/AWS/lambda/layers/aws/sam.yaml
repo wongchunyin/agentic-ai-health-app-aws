@@ -1,0 +1,22 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+
+Resources:
+  AWSLayer:
+    Type: AWS::Serverless::LayerVersion
+    Properties:
+      LayerName: aws-layer
+      Description: AWS utilities layer with Cognito, DynamoDB, S3 helpers
+      ContentUri: .
+      CompatibleRuntimes:
+        - python3.9
+        - python3.10
+        - python3.11
+      RetentionPolicy: Retain
+
+Outputs:
+  AWSLayerArn:
+    Description: ARN of the AWS Layer
+    Value: !Ref AWSLayer
+    Export:
+      Name: !Sub ${AWS::StackName}-AWSLayerArn

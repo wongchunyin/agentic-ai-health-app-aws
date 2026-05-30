@@ -1,0 +1,27 @@
+Thank you. Based on the previous list and my suggestions, here is the improved version. I have added new sections and modified existing ones to provide a richer context for a RAG system, which will allow Gemini-1.5-flash to create more personalized and responsible plans.
+
+Document Context: Definitions and Guidelines for Senior Fitness
+Clinical Frailty Scale (Rockwood)
+
+1 (Very Fit): Robust, active, and energetic. Exercises regularly.
+
+2 (Well): Active, but less fit than category 1. May exercise occasionally.
+
+3 (Managing Well): Medical problems are controlled, but not regularly active beyond routine walking.
+
+4 (Vulnerable): Symptoms limit activities; often feel "slowed up" or tired. Not dependent on others for help.
+
+5 (Mildly Frail): Needs help with high-order activities like shopping, heavy housework, or managing finances.
+
+6 (Moderately Frail): Needs help with all outdoor activities and housework. May have problems with stairs and need minimal assistance with bathing or dressing.
+
+7 (Severely Frail): Completely dependent on others for personal care.
+
+Exercise Progression and Modification Guidelines
+
+Start Slow: Always begin with the shortest duration and lowest intensity.
+
+Listen to Your Body: Stop immediately if you feel pain, dizziness, or chest discomfort.
+
+Adapt to Frailty: For individuals classified as Moderately to Severely Frail (5-7 on the scale), a healthcare professional should be consulted before starting. Chair-based and seated exercises are often a safer and more effective starting point.
+

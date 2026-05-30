@@ -1,0 +1,91 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+
+Globals:
+  Api:
+    Cors:
+      AllowMethods: "'GET,POST,PUT,DELETE,OPTIONS'"
+      AllowHeaders: "'Content-Type,Authorization,X-Requested-With,Accept,Origin,User-Agent,Cache-Control,Pragma'"
+      AllowOrigin: "'*'"
+      MaxAge: 86400
+
+Resources:
+  # Chatbox Handler Function
+  ChatboxHandlerFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: chatbox-handler
+      Runtime: python3.9
+      Handler: function.lambda_handler
+      CodeUri: .
+      MemorySize: 256
+      Timeout: 30
+      Layers:
+        - !Sub "arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:layer:message-layer:${MessageLayerVersion}"
+      Environment:
+        Variables:
+          TABLE_NAME: !Ref ConversationsTable
+      Policies:
+        - AWSLambdaBasicExecutionRole
+        - DynamoDBCrudPolicy:
+            TableName: !Ref ConversationsTable
+        - S3ReadPolicy:
+            BucketName: !Ref UploadsBucket
+      Events:
+        ApiEvent:
+          Type: Api
+          Properties:
+            Path: /chat
+            Method: post
+        OptionsEvent:
+          Type: Api
+          Properties:
+            Path: /chat
+            Method: options
+
+  # DynamoDB Table
+  ConversationsTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      TableName: conversations
+      AttributeDefinitions:
+        - AttributeName: conversationId
+          AttributeType: S
+        - AttributeName: userId
+          AttributeType: S
+      KeySchema:
+        - AttributeName: conversationId
+          KeyType: HASH
+      BillingMode: PAY_PER_REQUEST
+      GlobalSecondaryIndexes:
+        - IndexName: UserIdIndex
+          KeySchema:
+            - AttributeName: userId
+              KeyType: HASH
+          Projection:
+            ProjectionType: ALL
+
+  # S3 Bucket for uploads
+  UploadsBucket:
+    Type: AWS::S3::Bucket
+    Properties:
+      BucketName: !Sub uploads-${AWS::AccountId}
+      CorsConfiguration:
+        CorsRules:
+          - AllowedHeaders: ["*"]
+            AllowedMethods: [GET, PUT, POST, DELETE]
+            AllowedOrigins: ["*"]
+            MaxAge: 3000
+
+
+
+Outputs:
+  ChatApiUrl:
+    Description: "Chat API Gateway endpoint URL"
+    Value: !Sub "https://${ServerlessRestApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/chat"
+  ConversationsTableName:
+    Description: "Conversations DynamoDB Table Name"
+    Value: !Ref ConversationsTable
+  UploadsBucketName:
+    Description: "Uploads S3 Bucket Name"
+    Value: !Ref UploadsBucket

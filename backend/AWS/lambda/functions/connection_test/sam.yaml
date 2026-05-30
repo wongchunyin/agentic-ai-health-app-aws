@@ -1,0 +1,73 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+
+Parameters:
+  AWSLayerVersion:
+    Type: Number
+    Description: AWS Layer Version (includes Cognito helpers)
+    Default: 24
+  MessageLayerVersion:
+    Type: Number
+    Description: Message Layer Version
+    Default: 7
+  CognitoUserPoolId:
+    Type: String
+    Description: Cognito User Pool ID
+    Default: "us-east-1_tjhTbNShM"
+
+Resources:
+  # API Gateway with proper CORS
+  ConnectionTestApi:
+    Type: AWS::Serverless::Api
+    Properties:
+      StageName: Prod
+      Cors:
+        AllowMethods: "'GET,POST,OPTIONS'"
+        AllowHeaders: "'Content-Type,Authorization,X-Requested-With,Accept,Origin,User-Agent,Cache-Control,Pragma'"
+        AllowOrigin: "'*'"
+        AllowCredentials: false
+        MaxAge: 86400
+
+  # Connection Test Lambda Function
+  ConnectionTestFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: connection-test
+      Runtime: python3.9
+      Handler: function.lambda_handler
+      CodeUri: .
+      MemorySize: 256
+      Timeout: 30
+      Layers:
+        - !Sub "arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:layer:aws-layer:${AWSLayerVersion}"
+        - !Sub "arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:layer:message-layer:${MessageLayerVersion}"
+      Environment:
+        Variables:
+          COGNITO_USER_POOL_ID: !Ref CognitoUserPoolId
+          COGNITO_REGION: !Ref AWS::Region
+      Policies:
+        - AWSLambdaBasicExecutionRole
+      Events:
+        ApiEvent:
+          Type: Api
+          Properties:
+            Path: /test
+            Method: get
+            RestApiId: !Ref ConnectionTestApi
+        PostEvent:
+          Type: Api
+          Properties:
+            Path: /test
+            Method: post
+            RestApiId: !Ref ConnectionTestApi
+        OptionsEvent:
+          Type: Api
+          Properties:
+            Path: /test
+            Method: options
+            RestApiId: !Ref ConnectionTestApi
+
+Outputs:
+  ConnectionTestApiUrl:
+    Description: "Connection Test API Gateway endpoint URL"
+    Value: !Sub "https://${ConnectionTestApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/test"

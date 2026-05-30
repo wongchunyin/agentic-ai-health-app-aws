@@ -1,0 +1,58 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+
+Parameters:
+  LivewellCoreLayerVersion:
+    Type: Number
+    Description: Livewell Core Layer Version
+    Default: 98
+  AWSLayerVersion:
+    Type: Number
+    Description: AWS Layer Version
+    Default: 38
+
+Resources:
+  ScheduleProcessorFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: schedule-processor
+      CodeUri: auto-scorlling
+      Handler: function.lambda_handler
+      Runtime: python3.11
+      Timeout: 60
+      MemorySize: 512
+      Layers:
+        - !Sub "arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:layer:aws-layer:${AWSLayerVersion}"
+        - !Sub "arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:layer:livewell-core-layer:${LivewellCoreLayerVersion}"
+      Policies:
+        - DynamoDBCrudPolicy:
+            TableName: livewell
+        - S3ReadPolicy:
+            BucketName: livewell-profiles
+        - S3CrudPolicy:
+            BucketName: livewell-plans
+
+  # EventBridge rule to trigger the function (example - you'll create specific rules per task)
+  ScheduleProcessorRule:
+    Type: AWS::Events::Rule
+    Properties:
+      Name: schedule-processor-rule
+      Description: "Process scheduled tasks"
+      State: ENABLED
+      ScheduleExpression: "rate(1 hour)"  # Check every hour
+      Targets:
+        - Arn: !GetAtt ScheduleProcessorFunction.Arn
+          Id: "ScheduleProcessorTarget"
+
+  ScheduleProcessorPermission:
+    Type: AWS::Lambda::Permission
+    Properties:
+      FunctionName: !Ref ScheduleProcessorFunction
+      Action: lambda:InvokeFunction
+      Principal: events.amazonaws.com
+      SourceArn: !GetAtt ScheduleProcessorRule.Arn
+
+Outputs:
+  ScheduleProcessorFunction:
+    Description: "Schedule Processor Lambda Function ARN"
+    Value: !GetAtt ScheduleProcessorFunction.Arn

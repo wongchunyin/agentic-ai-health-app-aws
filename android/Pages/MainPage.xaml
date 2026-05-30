@@ -1,0 +1,74 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="LiveWell.MainPage">
+
+    <Grid>
+        <ActivityIndicator x:Name="LoadingIndicator" Color="White"
+                           Background="Black" Opacity="0.5" ZIndex="100"
+                           IsRunning="True" IsVisible="False"/>
+
+        <ScrollView>
+            <VerticalStackLayout
+            Padding="30" Spacing="30">
+
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+
+                    <Label x:Name="WelcomeLabel" Text="Welcome!" FontSize="25" FontAttributes="Bold" TextColor="Black" VerticalOptions="Center"/>
+                    <ImageButton Source="profile_icon.png"
+                             Grid.Column="1"
+                             WidthRequest="45"
+                             HeightRequest="45"
+                             CornerRadius="22"
+                             HorizontalOptions="End"
+                             Clicked="ImageButton_Clicked"/>
+                </Grid>
+
+                <Grid ColumnDefinitions="2*,*">
+                    <Frame Grid.Column="0" BorderColor="Gray" CornerRadius="15" Padding="20" HasShadow="True" Margin="10,0">
+                        <!-- Current weather -->
+                        <VerticalStackLayout Spacing="5" HorizontalOptions="Center" >
+                            <Grid HorizontalOptions="Center">
+                                <Label x:Name="LblLocation" Text="Adelaide" FontSize="18" FontAttributes="Bold" TextColor="Black"/>
+                            </Grid>
+                            <HorizontalStackLayout Spacing="10">
+                                <Image x:Name="ImgCurrentIcon" Source="partly_cloudy_icon.png" WidthRequest="70" HeightRequest="70" />
+                                <VerticalStackLayout>
+                                    <Label x:Name="LblTemperature" Text="N/A" FontSize="32" FontAttributes="Bold" TextColor="Black"/>
+                                    <Label x:Name="LblMinMaxTemp" Text="N/A / N/A" FontSize="12" TextColor="Black"/>
+                                </VerticalStackLayout>
+                            </HorizontalStackLayout>
+                            <Grid HorizontalOptions="Center">
+                                <Label x:Name="LblDescription" Text="N/A" FontSize="15" TextColor="Black"/>
+                            </Grid>
+                        </VerticalStackLayout>
+                    </Frame>
+
+                    <!-- Activity Score Frame -->
+                    <Grid Grid.Column="1" VerticalOptions="Center">
+                        <Frame BorderColor="Gray" CornerRadius="15" Padding="16" HasShadow="True" Margin="10,0">
+                            <VerticalStackLayout Spacing="10" HorizontalOptions="Start">
+                                <Label Text="Activity Score" FontSize="16" FontAttributes="Bold" TextColor="Black"/>
+                                <Label x:Name="LblActivityScore" Text="N/A" FontSize="30" FontAttributes="Bold" TextColor="Black"/>
+                            </VerticalStackLayout>
+                        </Frame>
+                    </Grid>
+                </Grid>
+
+                <Grid>
+                    <Label Text="Plans" FontSize="20" FontAttributes="Bold" TextColor="Black" HorizontalOptions="Start"/>
+                    <Button x:Name="BtnAddPlan" Text="Add Plan" FontSize="14" HorizontalOptions="End" Clicked="BtnAddPlan_Clicked"/>
+                </Grid>
+
+                <VerticalStackLayout x:Name="plansLayout" Spacing="10"/>
+
+            </VerticalStackLayout>
+        </ScrollView>
+
+    </Grid>
+
+</ContentPage>
